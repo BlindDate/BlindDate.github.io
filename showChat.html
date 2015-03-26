@@ -1,0 +1,97 @@
+<style>
+div#chat div.ONE {float:left;background-color:yellow;}
+div#chat div.TWO {float:right;text-align:right;background-color:green;}
+
+div#chat div.msgbox { width:70%; max-width:350px;margin-top:1%;}
+div#chat { background-color:red; width:50%; max-width:600px;}
+div.box-radius { 
+   padding: 10px;
+   border: 1px solid #cc0000;
+   border-radius: 15px;
+   -moz-border-radius: 15px;
+   -webkit-border-radius: 15px;
+   -o-border-radius: 15px;
+}
+</style>
+
+<HTML>
+	<body>
+		<div id="chat">
+			<div class="msgbox ONE box-radius">Hi</div>
+			<div class="msgbox TWO box-radius">Hello</div>
+		</div>
+	
+	<body>
+</HTML>
+
+<script  src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script>
+var getChatInfo = function (){  
+	var paramObj = new Object();
+	var locate = location.href;  
+
+	if(locate.indexOf("?")==-1){  
+		return paramObj;
+	}  
+
+	var params = locate.split("?")[1].split("&");  
+	for ( var i=0; i<params.length; i++ )  
+	{  
+		var temp = params[i].split("=");  
+		paramObj[temp[0]] = temp[1];  
+	}  
+	getChatInfo = function () { return paramObj; }  
+	return paramObj;  
+};  
+
+var getLastMessages = function(){
+	var params = getChatInfo();
+	
+	var url="http://54.65.165.135:8088/blinddate/conversation/" + params['chatCd'] + "/" + params['lastTime'];  
+  
+    $.ajax({      
+        type:"GET",  
+        url:url,          
+        success:function(msgs){   
+			alert(msgs);
+			
+			var msg = {};
+			var chat = $("#chat");
+			var lastTime = "";
+			for( var rawMsg in msgs ){
+				var msg = JSON.parse(rawMsg);
+				$(chat).append( 'div class="msgbox ' + msg['chatter'] + ' box-radius">' + msg['msg'] + '</div>' );
+				lastTime = msg['createDt'];
+			}
+			alert(222);
+			alert( params['chatCd']);
+			//getChatInfo = function() { return new Object(){ params['chatCd'], lastTime}; };
+        }
+    });  
+};
+
+function sleep(msecs){
+	var start = new Date().getTime();
+	var cur = start;
+	while (cur - start < msecs) 
+	{
+		cur = new Date().getTime();
+	}
+};
+
+var startLoading = function(){
+	var sleepTime = 10000;
+	
+	getLastMessages();
+	while(false){
+		
+		getLastMessages();
+		sleep(sleepTime);
+	}
+};
+
+startLoading();
+
+</script>
+
+
